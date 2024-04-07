@@ -21,7 +21,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests( auth -> auth.anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults()) //test
                 .rememberMe(rememberMe -> rememberMe
                 .alwaysRemember(true)  // "기억하기" 매개변수가 설정되지 않았을 때에도 쿠키가 항상 생성되어야 함
                 .tokenValiditySeconds(3600)  // 토큰이 유효한 시간(초 단위)
