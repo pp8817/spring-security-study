@@ -34,23 +34,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        requestCache.setMatchingRequestParameterName("customParam=y");
 
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/logoutSuccess").permitAll()
-                        .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .successHandler(new AuthenticationSuccessHandler() {
-                            @Override
-                            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                SavedRequest savedRequest = requestCache.getRequest(request, response);
-                                String redirectUrl = savedRequest.getRedirectUrl();
-                                response.sendRedirect(redirectUrl);
-                            }
-                        })
-
+                        .anyRequest()
+                        .authenticated())
+                .formLogin(Customizer.withDefaults()
                 );
-
 
         return http.build();
     }
