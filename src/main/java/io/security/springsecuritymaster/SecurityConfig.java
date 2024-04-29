@@ -36,15 +36,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder.authenticationProvider(new CustomAuthenticationProvider());
-        builder.authenticationProvider(new CustomAuthenticationProvider2());
-
         http
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/").permitAll()
-                        .anyRequest()
-                        .authenticated())
+                        .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 ;
 
@@ -53,8 +47,13 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(){
-        UserDetails user = User.withUsername("user").password("{noop}1111").roles("USER").build();
-        return  new InMemoryUserDetailsManager(user);
+        return new CustomUserDetailsService();
     }
+
+//    @Bean
+//    public UserDetailsService userDetailsService(){
+//        UserDetails user = User.withUsername("user").password("{noop}1111").roles("USER").build();
+//        return  new InMemoryUserDetailsManager(user);
+//    }
 
 }
