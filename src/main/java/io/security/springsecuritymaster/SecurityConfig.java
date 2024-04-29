@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
@@ -33,16 +35,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
-        requestCache.setMatchingRequestParameterName("customParam=y");
+
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.authenticationProvider(new CustomAuthenticationProvider());
+        builder.authenticationProvider(new CustomAuthenticationProvider2());
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/logoutSuccess").permitAll()
+//                        .requestMatchers("/").permitAll()
                         .anyRequest()
                         .authenticated())
-                .formLogin(Customizer.withDefaults()
-                );
+                .formLogin(Customizer.withDefaults())
+                ;
 
         return http.build();
     }
