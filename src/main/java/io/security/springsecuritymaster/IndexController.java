@@ -12,13 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class IndexController {
 
-    @Autowired
-    SecurityContextService securityContextService;
-
     @GetMapping("/")
     public String index() {
-        securityContextService.securityContext();
-
         return "index";
     }
 
