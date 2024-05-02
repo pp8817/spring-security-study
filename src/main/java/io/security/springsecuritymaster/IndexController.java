@@ -1,11 +1,9 @@
 package io.security.springsecuritymaster;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,5 +47,15 @@ public class IndexController {
     @GetMapping("/logoutSuccess")
     public String logoutSuccess() {
         return "logoutSuccess";
+    }
+
+    @GetMapping("/invalidSessionUrl")
+    public String invalidSessionUrl() {
+        return "invalidSessionUrl";
+    }
+
+    @GetMapping("/expiredUrl")
+    public String expiredUrl() {
+        return "expiredUrl";
     }
 }
