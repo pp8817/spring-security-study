@@ -17,7 +17,7 @@ public class SessionInfoService {
         for(Object principal : sessionRegistry.getAllPrincipals()){
             List<SessionInformation> allSessions = sessionRegistry.getAllSessions(principal, false);
             for (SessionInformation sessionInformation : allSessions) {
-                System.out.println("ㅅㅏ용자: " + principal + " 세션ID: " + sessionInformation.getSessionId() + " 최종 요청 시간: " + sessionInformation.getLastRequest());
+                System.out.println("사용자: " + principal + " 세션ID: " + sessionInformation.getSessionId() + " 최종 요청 시간: " + sessionInformation.getLastRequest());
             }
         }
 
