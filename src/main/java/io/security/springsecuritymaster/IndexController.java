@@ -2,6 +2,7 @@ package io.security.springsecuritymaster;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,6 +27,11 @@ public class IndexController {
     @GetMapping("/login")
     public String login() {
         return "login";
+    }
+
+    @PostMapping("/csrf")
+    public String csrf() {
+        return "csrf 적용";
     }
 
 //    @GetMapping("/loginPage")
