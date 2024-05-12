@@ -1,8 +1,8 @@
 package io.security.springsecuritymaster;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -11,30 +11,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
-import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, ApplicationContext context) throws Exception {
-
-        DefaultHttpSecurityExpressionHandler expressionHandler = new DefaultHttpSecurityExpressionHandler();
-        expressionHandler.setApplicationContext(context);
-
-        WebExpressionAuthorizationManager authorizationManager = new WebExpressionAuthorizationManager("@customWebSecurity.check(authentication, request)");
-
-        authorizationManager.setExpressionHandler(expressionHandler);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/custom/**")
-                        .access(authorizationManager)
-                        .requestMatchers(new CustomRequestMatcher("/custom1/**")).hasAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(Customizer.withDefaults());
 
-                        .anyRequest().authenticated()
+        return http.build();
+    }
+
+    @Bean
+    @Order(1) // 동일한 두 개의 빈 중에서 해당 빈이 먼저 실행되도록 설정
+    public SecurityFilterChain securityFilterChain1(HttpSecurity http) throws Exception {
+
+        http.securityMatchers(matchers ->
+                        matchers.requestMatchers("/api/**", "/oauth/**"))
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().permitAll()
                 )
                 .formLogin(Customizer.withDefaults());
 
