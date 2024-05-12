@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/custom/**")
                         .access(authorizationManager)
+                        .requestMatchers(new CustomRequestMatcher("/custom1/**")).hasAuthority("ROLE_ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());
