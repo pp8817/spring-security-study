@@ -1,5 +1,6 @@
 package io.security.springsecuritymaster;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -10,21 +11,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ApplicationContext context) throws Exception {
+
+        DefaultHttpSecurityExpressionHandler expressionHandler = new DefaultHttpSecurityExpressionHandler();
+        expressionHandler.setApplicationContext(context);
+
+        WebExpressionAuthorizationManager authorizationManager = new WebExpressionAuthorizationManager("@customWebSecurity.check(authentication, request)");
+
+        authorizationManager.setExpressionHandler(expressionHandler);
+
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/{name}")
-                        .access(new WebExpressionAuthorizationManager("#name == authentication.name"))
-                        .requestMatchers("/admin/db")
-                        .access(new WebExpressionAuthorizationManager("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_DB')"))
+                        .requestMatchers("/custom/**")
+                        .access(authorizationManager)
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());
