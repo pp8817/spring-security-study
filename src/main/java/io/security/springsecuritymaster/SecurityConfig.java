@@ -2,7 +2,8 @@ package io.security.springsecuritymaster;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +25,10 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("user").hasRole("USER")
+                        .requestMatchers("db").hasRole("DB")
+                        .requestMatchers("admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
@@ -31,18 +36,19 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+    /**
+     * 계층적 권한 설정
+     * ex) ROLE_ADMIN 의 경우 ROLE_DB, ROLE_USER, ROLE_ANONYMOUS 의 권한도 가지게 됨.
+     */
     @Bean
-    @Order(1) // 동일한 두 개의 빈 중에서 해당 빈이 먼저 실행되도록 설정
-    public SecurityFilterChain securityFilterChain1(HttpSecurity http) throws Exception {
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_DB\n" +
+                "ROLE_DB > ROLE_USER\n" +
+                "ROLE_USER > ROLE_ANONYMOUS");
 
-        http.securityMatchers(matchers ->
-                        matchers.requestMatchers("/api/**", "/oauth/**"))
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
-                )
-                .formLogin(Customizer.withDefaults());
-
-        return http.build();
+        return roleHierarchy;
     }
 
     @Bean
