@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
@@ -26,10 +27,10 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("user").hasRole("USER")
-                        .requestMatchers("db").hasRole("DB")
-                        .requestMatchers("admin").hasRole("ADMIN")
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/db").access(new WebExpressionAuthorizationManager("hasRole('DB')"))
+                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/secure").access(new CustomAuthorizationManager())
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
@@ -60,9 +61,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         UserDetails user = User.withUsername("user").password("{noop}1111").roles("USER").build();
-
         UserDetails manager = User.withUsername("manager").password("{noop}1111").roles("MANAGER").build();
-
         UserDetails admin = User.withUsername("admin").password("{noop}1111").roles("ADMIN", "WRITE").build();
         return new InMemoryUserDetailsManager(user);
     }
